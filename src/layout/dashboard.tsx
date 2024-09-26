@@ -1,7 +1,8 @@
+import { Box } from "@mui/material";
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
 export function Component() {
-  return <></>;
+  return <Box></Box>;
 }
 
 // If you want to customize the component display name in React dev tools:

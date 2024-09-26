@@ -15,7 +15,6 @@ function AppRouter() {
       default: module.Component,
     }))
   );
-
   const router = createHashRouter(
     createRoutesFromElements(
       <>

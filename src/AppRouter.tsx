@@ -19,6 +19,10 @@ function AppRouter() {
     createRoutesFromElements(
       <>
         <Route path='/' element={<Navigate to='/coming-soon' replace />} />
+        <Route
+          path='/lander'
+          element={<Navigate to='/coming-soon' replace />}
+        />
         {/* //temp */}
         {/* <Route path='/' element={<Navigate to='/dashboard' replace />} /> */}
         <Route

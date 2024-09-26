@@ -1,7 +1,8 @@
 {
-  "name": "sbsf",
+  "name": "satin",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://sukhmaniandrupinder.com/",
   "type": "module",
   "scripts": {
     "start": "vite",

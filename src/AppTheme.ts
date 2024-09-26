@@ -11,10 +11,10 @@ export const AppTheme = createTheme({
   },
   palette: {
     primary: {
-      main: "#FF0080",
+      main: "#000000",
     },
     secondary: {
-      main: "#000000",
+      main: "#ffffff",
     },
     background: {
       default: "#DFE9E9",

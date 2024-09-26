@@ -1,5 +1,3 @@
-import { Box, Grid, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
 export function Component() {

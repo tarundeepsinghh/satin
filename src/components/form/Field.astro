@@ -1,0 +1,48 @@
+---
+// Accessible form field: label, hint, inline error slot. Underline style to match the brand.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = Omit<HTMLAttributes<'input'>, 'name'> & {
+  name: string;
+  label: string;
+  hint?: string;
+  as?: 'input' | 'textarea' | 'select' | 'radio';
+  options?: readonly string[];
+  rows?: number;
+};
+const { name, label, hint, as = 'input', options = [], required, rows = 5, class: _c, ...rest } = Astro.props;
+const id = `f-${name}`;
+const describedBy = [hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+const control =
+  'w-full rounded-none border-0 border-b border-ink/30 bg-transparent px-0 py-2.5 text-base text-ink placeholder:text-ink/35 transition-colors focus:border-ink focus:ring-0 focus:outline-none aria-[invalid=true]:border-rose';
+---
+
+<div class="flex flex-col gap-1.5" data-field={name}>
+  {as === 'radio' ? (
+    <fieldset aria-describedby={describedBy}>
+      <legend class="label mb-3 text-ink">{label}{required && <span class="text-rose" aria-hidden="true"> *</span>}</legend>
+      <div class="flex flex-wrap gap-2">
+        {options.map((opt, i) => (
+          <label class="cursor-pointer">
+            <input type="radio" name={name} value={opt} required={required} checked={i === 0} class="peer sr-only" />
+            <span class="label inline-flex min-h-11 items-center border border-ink/25 px-5 text-ink transition-colors peer-checked:border-plum peer-checked:bg-plum peer-checked:text-on-plum peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-rose">{opt}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  ) : (
+    <>
+      <label for={id} class="label text-ink">{label}{required && <span class="text-rose" aria-hidden="true"> *</span>}{!required && <span class="normal-case tracking-normal text-ink/45"> (optional)</span>}</label>
+      {as === 'textarea' && <textarea id={id} name={name} required={required} rows={rows} aria-describedby={describedBy} class:list={[control, 'resize-y']} {...(rest as any)} />}
+      {as === 'select' && (
+        <select id={id} name={name} required={required} aria-describedby={describedBy} class:list={[control, 'cursor-pointer appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234a2a33%27 stroke-width=%271.2%27%3E%3Cpath d=%27m6 9 6 6 6-6%27/%3E%3C/svg%3E")] bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat pr-8']}>
+          <option value="" selected disabled={required}>{required ? 'Select…' : 'Not specified'}</option>
+          {options.map((opt) => <option value={opt}>{opt}</option>)}
+        </select>
+      )}
+      {as === 'input' && <input id={id} name={name} required={required} aria-describedby={describedBy} class={control} {...rest} />}
+    </>
+  )}
+  {hint && <p id={`${id}-hint`} class="text-xs text-ink/55">{hint}</p>}
+  <p id={`${id}-error`} class="text-sm text-rose empty:hidden" data-error></p>
+</div>

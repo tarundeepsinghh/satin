@@ -1,0 +1,56 @@
+---
+import Blossom from '@/components/brand/Blossom.astro';
+import Photo from './Photo.astro';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+import { whatsappUrl } from '@/lib/whatsapp';
+import { editorial, pick } from '@/config/editorial';
+
+const shot = await pick(editorial.custom);
+const steps = [
+  ['Share your idea', 'Tell us the occasion, colours and inspiration through the enquiry form.'],
+  ['Talk it through', 'We get in touch on WhatsApp, email or phone to discuss the details.'],
+  ['Made by hand', 'Your outfit is made to order, to your requirements.'],
+];
+---
+
+<section class="overflow-hidden bg-paper py-20 md:py-28">
+  <div class="container-x grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-0">
+    <!-- Arch photo with the framed mark pinned to its edge -->
+    <div class="relative mx-auto w-[78%] max-w-md lg:w-[82%]">
+      <div class="arch-frame"></div>
+      <div class="arch relative aspect-[3/4] bg-pink-deep">
+        <Photo src={shot.src} alt={shot.alt} sizes="(min-width: 64rem) 36vw, 78vw" />
+      </div>
+      <div class="absolute -bottom-6 -left-6 grid size-24 place-items-center border border-ink bg-pink md:size-28" aria-hidden="true">
+        <div class="absolute inset-1.5 border border-frame"></div>
+        <Blossom size={44} stroke={2.6} class="text-ink" />
+      </div>
+    </div>
+
+    <div class="relative z-10 flex flex-col lg:-ml-24">
+      <p class="label flex items-center gap-3"><span class="h-px w-8 bg-mauve" aria-hidden="true"></span>Custom Made</p>
+      <h2 class="mt-4 font-display text-[2.6rem] leading-[1.05] tracking-[0.05em] md:text-7xl">
+        <span class="lg:bg-paper lg:pr-6">Your design,</span><br />made for you.
+      </h2>
+
+      <ol class="mt-10 flex flex-col gap-6 lg:pl-24">
+        {steps.map(([title, text], i) => (
+          <li class="flex gap-5 border-t border-ink/15 pt-5">
+            <span class="font-display text-[2rem] leading-none text-outline">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3 class="font-display text-xl tracking-[0.04em] md:text-2xl">{title}</h3>
+              <p class="mt-1 text-ink/75">{text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row lg:pl-24">
+        <a href="/custom-made" class="btn btn-solid">Start a custom enquiry</a>
+        <a href={whatsappUrl("Hi, I'd like to discuss a custom outfit.")} target="_blank" rel="noopener" class="btn btn-line" data-track="whatsapp_click" data-location="custom_cta">
+          <WhatsAppIcon /> Chat on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

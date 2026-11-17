@@ -1,0 +1,57 @@
+---
+import { site } from '@/config/site';
+import { isIndexable } from '@/lib/indexing';
+import { getEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
+import { formatTitle, absoluteUrl } from '@/lib/seo';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  /** Path or absolute URL; defaults to the hero design's first photo */
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'product';
+  noindex?: boolean;
+  jsonLd?: object[];
+}
+
+const { title, description = site.seo.defaultDescription, image: imageProp, imageAlt: imageAltProp, type = 'website', noindex = false, jsonLd = [] } = Astro.props;
+
+const base = Astro.site!;
+// Canonical: production domain + clean path (no trailing slash, no query).
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const canonical = absoluteUrl(path, base);
+const fullTitle = formatTitle(title);
+// Default share image: hero design photo, 1200px JPEG (widest crawler support).
+let image = imageProp;
+let imageAlt = imageAltProp;
+if (!image) {
+  const hero = (await getEntry('designs', site.heroDesign))?.data.images[0];
+  if (hero) {
+    image = (await getImage({ src: hero.src, ...(typeof hero.src === 'string' && { inferSize: true }), layout: 'none', width: 1200, format: 'jpg' })).src;
+    imageAlt = hero.alt;
+  }
+}
+const ogImage = image ? absoluteUrl(image, base) : undefined;
+const robots = !isIndexable || noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1';
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={robots} />
+
+<meta property="og:type" content={type === 'product' ? 'product' : type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.locale} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+{imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+{site.seo.twitterHandle && <meta name="twitter:site" content={site.seo.twitterHandle} />}
+
+{jsonLd.map((data) => <script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />)}

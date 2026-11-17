@@ -1,0 +1,57 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Blossom from '@/components/brand/Blossom.astro';
+import Photo from '@/components/ui/Photo.astro';
+import SectionHead from '@/components/ui/SectionHead.astro';
+import CustomCta from '@/components/ui/CustomCta.astro';
+import { site, craft } from '@/config/site';
+import { breadcrumbLd } from '@/lib/seo';
+import { editorial, pick } from '@/config/editorial';
+
+const base = Astro.site!;
+// TODO(owner): replace with a portrait of the designer (add to src/assets/ and import it).
+const portrait = await pick(editorial.about);
+---
+
+<BaseLayout
+  title={`${site.designerName} — The Designer`}
+  description={`Meet ${site.designerName}, the designer behind Satin by Sukhmani — made-to-order, hand-embroidered Indian wear.`}
+  jsonLd={[breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'The Designer', path: '/about' }], base)]}
+>
+  <section class="bg-pink">
+  <div class="container-x grid gap-0 py-12 md:py-20 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+    <figure class="relative mx-auto w-[84%] max-w-md lg:w-full">
+      <div aria-hidden="true" class="arch pointer-events-none absolute -inset-x-3 -top-3 bottom-8 border border-ink/25"></div>
+      <div class="arch relative aspect-[3/4] bg-pink">
+        <Photo src={portrait.src} alt={portrait.alt} priority sizes="(min-width: 64rem) 40vw, 84vw" />
+      </div>
+      <figcaption class="label mt-4 hidden lg:block">{portrait.name}</figcaption>
+    </figure>
+
+    <div class="relative z-10 -mt-10 flex flex-col gap-7 bg-paper px-6 py-8 md:px-10 lg:mt-0 lg:-ml-24 lg:px-14 lg:py-14">
+      <SectionHead label="The Designer" title={site.designerName} as="h1" />
+      <p class="font-display text-2xl leading-snug tracking-[0.02em] md:text-3xl">
+        Satin by Sukhmani is a made-to-order label for hand-embroidered Indian wear.
+      </p>
+      <!-- TODO(owner): replace these paragraphs with the designer's own story — training, inspiration, studio, family. -->
+      <div class="flex flex-col gap-5 text-ink/80">
+        <p>The collections span bridal anarkalis and lehengas, festive sharara and gharara sets, easy co-ords, sarees, statement dupattas and embroidered bags — each designed in-house and made only once it's ordered.</p>
+        <p>Pieces are worked in pure silk, organza, chanderi, georgette, linen and cotton, and finished with hand embroidery. Because nothing is mass-produced, sizing and colour can be adapted to the person wearing it.</p>
+      </div>
+      <a href="/collections" class="label link-line self-start text-ink">Explore the collections</a>
+    </div>
+  </div>
+  </section>
+
+  <section class="border-y border-line bg-white/50 py-16 md:py-24">
+    <div class="container-x flex flex-col items-center gap-8 text-center">
+      <Blossom size={36} stroke={3} class="text-rose" />
+      <p class="label">Techniques you'll find in the collections</p>
+      <ul class="flex max-w-4xl flex-wrap justify-center gap-x-6 gap-y-2 font-display text-xl tracking-[0.12em] uppercase md:text-3xl">
+        {craft.map((c) => <li>{c}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CustomCta />
+</BaseLayout>

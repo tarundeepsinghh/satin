@@ -1,0 +1,216 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHead from '@/components/ui/SectionHead.astro';
+import Blossom from '@/components/brand/Blossom.astro';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon.astro';
+import Field from '@/components/form/Field.astro';
+import { outfitCategories, budgetRanges, contactMethods } from '@/config/site';
+import { breadcrumbLd } from '@/lib/seo';
+import { whatsappUrl } from '@/lib/whatsapp';
+
+const base = Astro.site!;
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<BaseLayout
+  title="Custom-Made Outfits"
+  description="Share your design vision with Satin by Sukhmani. Tell us the occasion, colours and inspiration and we'll get in touch to create a custom, hand-embroidered outfit made for you."
+  jsonLd={[breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Custom Made', path: '/custom-made' }], base)]}
+>
+  <section class="bg-pink">
+    <div class="container-x flex flex-col items-center py-14 text-center md:py-20">
+      <Blossom size={44} veins draw class="text-ink" />
+      <p class="label mt-6">Custom Made</p>
+      <h1 class="mt-4 max-w-3xl text-[2.4rem] leading-[1.08] tracking-[0.05em] md:text-6xl">Tell us about the outfit you're dreaming of.</h1>
+      <p class="mt-5 max-w-xl text-ink/80">Share as much or as little as you know. We'll read every detail and get in touch to talk it through — on WhatsApp, email or a call.</p>
+    </div>
+  </section>
+
+  <div class="container-x grid gap-12 py-12 md:py-20 lg:grid-cols-[1fr_2fr] lg:gap-20">
+    <aside class="flex flex-col gap-6 lg:sticky lg:top-28 lg:self-start">
+      <SectionHead label="How it works" />
+      <ol class="flex flex-col gap-5 text-sm text-ink/80">
+        <li><span class="font-display text-lg text-rose">01</span> — Fill in the form below. Only a few fields are required.</li>
+        <li><span class="font-display text-lg text-rose">02</span> — We review your requirements and get in touch.</li>
+        <li><span class="font-display text-lg text-rose">03</span> — Share reference images on WhatsApp and we'll discuss design, sizing and pricing.</li>
+      </ol>
+      <p class="border-l border-rose pl-4 text-xs text-ink/65">Submitting this form doesn't confirm an order, guarantee availability or commit to a delivery date.</p>
+    </aside>
+
+    <div>
+      <form id="enquiry" action="/api/custom-enquiries" method="post" novalidate class="flex flex-col gap-14">
+        <!-- A -->
+        <fieldset class="flex flex-col gap-6">
+          <legend class="mb-6 flex items-baseline gap-4"><span class="font-display text-3xl text-rose">A</span><span class="label text-ink">About you</span></legend>
+          <Field name="name" label="Full name" required autocomplete="name" maxlength={100} minlength={2} />
+          <div class="grid gap-6 md:grid-cols-2">
+            <Field name="email" label="Email address" type="email" required autocomplete="email" maxlength={254} />
+            <Field name="phone" label="WhatsApp / mobile number" type="tel" required autocomplete="tel" inputmode="tel" maxlength={20} pattern="^\+?[0-9\s\-()]{7,20}$" hint="Include country code, e.g. +91" />
+          </div>
+          <Field name="location" label="City or location" autocomplete="address-level2" maxlength={100} />
+          <Field name="contactMethod" label="Preferred contact method" as="radio" options={contactMethods} required />
+        </fieldset>
+
+        <!-- B -->
+        <fieldset class="flex flex-col gap-6">
+          <legend class="mb-6 flex items-baseline gap-4"><span class="font-display text-3xl text-rose">B</span><span class="label text-ink">The outfit</span></legend>
+          <div class="grid gap-6 md:grid-cols-2">
+            <Field name="category" label="Outfit category" as="select" options={outfitCategories} required />
+            <Field name="occasion" label="Occasion" required maxlength={120} placeholder="e.g. Sangeet, reception, festive" />
+          </div>
+          <Field name="description" label="Describe the outfit you have in mind" as="textarea" required minlength={10} maxlength={3000} placeholder="Silhouette, mood, details you love…" />
+          <input type="hidden" name="design" data-design-ref />
+          <div class="grid gap-6 md:grid-cols-2">
+            <Field name="colour" label="Preferred colours" maxlength={120} />
+            <Field name="fabric" label="Fabric preference" maxlength={120} placeholder="e.g. Pure silk, organza" />
+          </div>
+          <div class="grid gap-6 md:grid-cols-[2fr_1fr]">
+            <Field name="embellishment" label="Embroidery or embellishment" maxlength={200} placeholder="e.g. Zari, gotta patti, mirror work" />
+            <Field name="quantity" label="Number of outfits" type="number" min={1} max={50} inputmode="numeric" />
+          </div>
+          <Field name="customisation" label="Anything else we should know?" as="textarea" maxlength={2000} rows={3} />
+        </fieldset>
+
+        <!-- C -->
+        <fieldset class="flex flex-col gap-6">
+          <legend class="mb-6 flex items-baseline gap-4"><span class="font-display text-3xl text-rose">C</span><span class="label text-ink">Budget & timeline</span></legend>
+          <div class="grid gap-6 md:grid-cols-2">
+            <Field name="budget" label="Budget range" as="select" options={budgetRanges} />
+            <Field name="eventDate" label="Event date" type="date" min={today} />
+          </div>
+          <Field name="timeline" label="Timeline notes" maxlength={500} placeholder="e.g. Need it a week before the wedding" />
+        </fieldset>
+
+        <!-- D -->
+        <fieldset class="flex flex-col gap-6">
+          <legend class="mb-6 flex items-baseline gap-4"><span class="font-display text-3xl text-rose">D</span><span class="label text-ink">References</span></legend>
+          <Field name="referenceUrl" label="Link to an inspiration image" type="url" pattern="https?://.+" maxlength={500} placeholder="https://" hint="Pinterest, Instagram or any image link. You can also send photos on WhatsApp after submitting." />
+        </fieldset>
+
+        <!-- E -->
+        <fieldset class="flex flex-col gap-6">
+          <legend class="mb-6 flex items-baseline gap-4"><span class="font-display text-3xl text-rose">E</span><span class="label text-ink">Consent</span></legend>
+          <div class="flex flex-col gap-2" data-field="consent">
+            <label class="flex cursor-pointer items-start gap-3 text-sm text-ink/85">
+              <input type="checkbox" name="consent" required class="mt-1 size-4 shrink-0 accent-plum" aria-describedby="consent-error" />
+              <span>I have read the <a href="/privacy-policy" class="underline underline-offset-2" target="_blank">privacy policy</a> and agree to be contacted about this enquiry.</span>
+            </label>
+            <p id="consent-error" class="text-sm text-rose empty:hidden" data-error></p>
+          </div>
+        </fieldset>
+
+        <!-- Honeypot: hidden from people, tempting to bots -->
+        <div class="absolute -left-[9999px]" aria-hidden="true">
+          <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <div class="flex flex-col gap-4 border-t border-line-strong pt-8">
+          <p role="alert" class="text-sm text-rose empty:hidden" data-form-error></p>
+          <button type="submit" class="btn btn-solid w-full disabled:cursor-wait disabled:opacity-70 md:w-auto md:self-start" data-submit>
+            <span data-submit-label>Submit Custom Design Enquiry</span>
+          </button>
+          <p class="text-xs text-ink/60">This doesn't place an order or commit us to a delivery date — it starts the conversation.</p>
+        </div>
+      </form>
+
+      <!-- Success -->
+      <div id="enquiry-success" hidden tabindex="-1" class="flex flex-col items-center gap-6 bg-pink px-6 py-14 text-center outline-none md:px-12">
+        <Blossom size={56} veins class="text-ink" />
+        <h2 class="text-3xl tracking-[0.05em] md:text-4xl">Thank you for sharing your vision.</h2>
+        <p class="max-w-md text-ink/80">Your enquiry has been received. We'll review your requirements and get in touch with you soon.</p>
+        <p class="label">Enquiry reference · <span class="font-medium text-ink" data-reference></span></p>
+        <a href={whatsappUrl('')} target="_blank" rel="noopener" class="btn btn-solid" data-whatsapp-followup data-track="whatsapp_click" data-location="enquiry_success">
+          <WhatsAppIcon /> Continue on WhatsApp
+        </a>
+        <p class="text-xs text-ink/60">Optional — send reference images or ask a question. Your enquiry is already complete.</p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { followUpMessage, whatsappUrl } from '@/lib/whatsapp';
+  import { track } from '@/scripts/analytics';
+
+  const form = document.getElementById('enquiry') as HTMLFormElement;
+  const success = document.getElementById('enquiry-success') as HTMLElement;
+  const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+  const submitLabel = form.querySelector('[data-submit-label]')!;
+  const formError = form.querySelector('[data-form-error]')!;
+
+  // Prefill design reference from /custom-made?design=Name
+  const design = new URLSearchParams(location.search).get('design');
+  if (design) {
+    form.querySelector<HTMLInputElement>('[data-design-ref]')!.value = design.slice(0, 150);
+    const desc = form.elements.namedItem('description') as HTMLTextAreaElement;
+    if (!desc.value) desc.value = `I'd like something like "${design.slice(0, 150)}", with these changes: `;
+  }
+
+  const messages: Record<string, string> = {
+    valueMissing: 'This field is required',
+    typeMismatch: 'Please check the format',
+    // patternMismatch also covers non-http(s) links in the reference field
+    patternMismatch: 'Please check the format',
+    tooShort: 'Please add a little more detail',
+    rangeUnderflow: 'Please choose a later value',
+  };
+
+  function setError(name: string, message: string) {
+    const wrap = form.querySelector(`[data-field="${name}"]`);
+    const out = wrap?.querySelector('[data-error]');
+    if (out) out.textContent = message;
+    wrap?.querySelectorAll('input, select, textarea').forEach((el) => el.setAttribute('aria-invalid', message ? 'true' : 'false'));
+  }
+
+  function clientValidate() {
+    let firstInvalid: HTMLElement | null = null;
+    for (const el of Array.from(form.elements) as HTMLInputElement[]) {
+      if (!el.name || el.name === 'website' || !('validity' in el)) continue;
+      if (el.type === 'radio' && el !== form.querySelector(`[name="${el.name}"]`)) continue;
+      const key = (Object.keys(messages) as (keyof ValidityState)[]).find((k) => el.validity[k]);
+      setError(el.name, key ? messages[key] : '');
+      if (key && !firstInvalid) firstInvalid = el;
+    }
+    firstInvalid?.focus();
+    return !firstInvalid;
+  }
+
+  form.addEventListener('input', (e) => {
+    const el = e.target as HTMLInputElement;
+    if (el.getAttribute('aria-invalid') === 'true' && el.validity.valid) setError(el.name, '');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (submit.disabled) return;
+    formError.textContent = '';
+    if (!clientValidate()) return;
+
+    submit.disabled = true;
+    submitLabel.textContent = 'Sending…';
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok) {
+        track('enquiry_submitted', { location: 'custom_made' });
+        success.querySelector('[data-reference]')!.textContent = json.reference;
+        success.querySelector<HTMLAnchorElement>('[data-whatsapp-followup]')!.href = whatsappUrl(followUpMessage(json.reference));
+        form.hidden = true;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        success.focus({ preventScroll: true });
+        return;
+      }
+      if (json.fieldErrors) {
+        Object.entries(json.fieldErrors as Record<string, string>).forEach(([k, v]) => setError(k, v));
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      }
+      formError.textContent = json.error ?? 'Something went wrong. Please try again or contact us on WhatsApp.';
+    } catch {
+      formError.textContent = 'We could not reach the server. Please check your connection and try again.';
+    } finally {
+      submit.disabled = false;
+      submitLabel.textContent = 'Submit Custom Design Enquiry';
+    }
+  });
+</script>

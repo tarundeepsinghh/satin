@@ -1,0 +1,34 @@
+---
+// Five-petal blossom mark — exact geometry from the "Satin Logo v2" handoff.
+// Colour follows `currentColor`; set it with a text-* class.
+interface Props {
+  size?: number | string;
+  /** Stroke width in the 120-unit viewBox (handoff uses 2.2 large → 6 at favicon size). */
+  stroke?: number;
+  veins?: boolean;
+  dot?: number;
+  draw?: boolean;
+  class?: string;
+  title?: string;
+}
+const { size = 78, stroke = 2.2, veins = false, dot = 5.5, draw = false, class: className, title } = Astro.props;
+const angles = [0, 72, 144, 216, 288];
+const petal = 'M0,0 C9,-17 9,-34 0,-47 C-9,-34 -9,-17 0,0 Z';
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 120 120"
+  fill="none"
+  class:list={[draw && 'bloom-draw', className]}
+  role={title ? 'img' : undefined}
+  aria-hidden={title ? undefined : 'true'}
+  aria-label={title}
+>
+  <g transform="translate(60,60)" stroke="currentColor" stroke-width={stroke} stroke-linejoin="round" stroke-linecap="round">
+    {angles.map((a) => <path transform={`rotate(${a})`} d={petal} pathLength="1" />)}
+    {veins && angles.map((a) => <path transform={`rotate(${a})`} d="M0,-9 L0,-39" stroke-width={stroke / 2} pathLength="1" />)}
+    <circle r={dot} fill="currentColor" stroke="none" />
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+---
+interface Props { label: string; title?: string; align?: 'left' | 'center'; as?: 'h1' | 'h2'; class?: string }
+const { label, title, align = 'left', as: Tag = 'h2', class: className } = Astro.props;
+---
+
+<header class:list={['flex flex-col gap-3', align === 'center' && 'items-center text-center', className]}>
+  <p class="label flex items-center gap-3">
+    <span class="h-px w-8 bg-mauve" aria-hidden="true"></span>{label}
+  </p>
+  {title && <Tag class="text-[2.4rem] leading-[1.08] tracking-[0.05em] md:text-6xl">{title}</Tag>}
+  <slot />
+</header>

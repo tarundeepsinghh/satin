@@ -1,0 +1,44 @@
+---
+// Arch-topped design card (the jharokha arch is the brand's signature frame).
+import Photo from './Photo.astro';
+import { site, formatPrice } from '@/config/site';
+import type { Design } from '@/lib/content';
+
+interface Props {
+  design: Design;
+  index?: number;
+  sizes?: string;
+  /** arch = signature arched top; plain = straight edges (dense grids). */
+  shape?: 'arch' | 'plain';
+  aspect?: '4/5' | '2/3' | '3/4';
+  /** Morph this card's image into the design page (cross-document view transition). */
+  morph?: boolean;
+  class?: string;
+}
+const { design, index, sizes, shape = 'arch', aspect = '2/3', morph = true, class: className } = Astro.props;
+const { name, summary, images, price } = design.data;
+const [first, second] = images;
+const ratio = { '4/5': 'aspect-[4/5]', '2/3': 'aspect-[2/3]', '3/4': 'aspect-[3/4]' }[aspect];
+const no = index !== undefined ? String(index + 1).padStart(2, '0') : undefined;
+---
+
+<article class:list={['group', className]}>
+  <a href={`/designs/${design.id}`} class="block" data-track="design_card_click" data-design={design.id}>
+    <div class:list={['relative overflow-hidden bg-pink-deep', ratio, shape === 'arch' && 'arch']} style={morph ? `view-transition-name: d-${design.id}` : undefined}>
+      {first && <Photo src={first.src} alt={first.alt} sizes={sizes} class="transition-transform duration-[1.4s] ease-(--ease-silk) group-hover:scale-[1.04]" />}
+      {second && (
+        <Photo src={second.src} alt="" sizes={sizes} class="absolute inset-0 hidden opacity-0 transition-opacity duration-700 group-hover:opacity-100 md:block" />
+      )}
+    </div>
+    <div class="relative mt-3 flex items-start gap-3">
+      {no && <span class="font-display text-[1.6rem] leading-none text-outline md:text-[2rem]" aria-hidden="true">{no}</span>}
+      <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+        <h3 class="font-display text-[1.2rem] leading-snug tracking-[0.04em] md:text-[1.4rem]">{name}</h3>
+        <p class="line-clamp-1 text-[0.9rem] text-ink/60">{summary}</p>
+        {site.showPrices && price && (
+          <p class="text-[0.95rem] text-rose">{price.startingFrom ? 'From ' : ''}{formatPrice(price.amount)}</p>
+        )}
+      </div>
+    </div>
+  </a>
+</article>

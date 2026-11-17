@@ -1,0 +1,33 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHead from '@/components/ui/SectionHead.astro';
+import ChapterRows from '@/components/ui/ChapterRows.astro';
+import CustomCta from '@/components/ui/CustomCta.astro';
+import { breadcrumbLd, collectionPageLd } from '@/lib/seo';
+import { getCollections, getDesigns } from '@/lib/content';
+
+const base = Astro.site!;
+const collections = await getCollections();
+const total = (await getDesigns()).length;
+const description = 'Explore every collection by Satin by Sukhmani — bridal lehengas, festive suits and shararas, co-ords, sarees, dupattas and embroidered bags. All made to order.';
+---
+
+<BaseLayout
+  title="Collections"
+  description={description}
+  jsonLd={[
+    breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Collections', path: '/collections' }], base),
+    collectionPageLd(
+      { name: 'Collections', description, path: '/collections', items: collections.map((c) => ({ name: c.data.name, path: `/collections/${c.id}` })) },
+      base,
+    ),
+  ]}
+>
+  <section class="pt-10 pb-16 md:pt-16 md:pb-24">
+    <SectionHead label={`${collections.length} chapters · ${total} designs`} title="The Collections" as="h1" class="container-x mb-12 md:mb-20">
+      <p class="max-w-xl text-ink/75">Every design is made to order and can be adapted in size and colour. Browse by chapter.</p>
+    </SectionHead>
+    <div class="container-x"><ChapterRows /></div>
+  </section>
+  <CustomCta />
+</BaseLayout>

@@ -1,0 +1,164 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Photo from '@/components/ui/Photo.astro';
+import DesignCard from '@/components/ui/DesignCard.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon.astro';
+import { site, formatPrice } from '@/config/site';
+import { absoluteUrl, breadcrumbLd, designLd } from '@/lib/seo';
+import { getDesigns, getRelatedDesigns, indexImage, shareImage, type Design } from '@/lib/content';
+import { designEnquiryMessage, whatsappUrl } from '@/lib/whatsapp';
+
+export async function getStaticPaths() {
+  return (await getDesigns()).map((design) => ({ params: { slug: design.id }, props: { design } }));
+}
+
+const { design } = Astro.props as { design: Design };
+const { data } = design;
+const base = Astro.site!;
+const path = `/designs/${design.id}`;
+const collection = (await getEntry(data.collection))!;
+const related = await getRelatedDesigns(design);
+const { Content } = await render(design);
+const description = data.seo?.description ?? data.summary;
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Collections', path: '/collections' },
+  { name: collection.data.name, path: `/collections/${collection.id}` },
+  { name: data.name, path },
+];
+
+const ogImage = data.images[0] && (await shareImage(data.images[0].src));
+const ldImages = await Promise.all(data.images.map((img) => indexImage(img.src)));
+const waLink = whatsappUrl(designEnquiryMessage(data.name, absoluteUrl(path, base)));
+const priceText = site.showPrices && data.price ? `${data.price.startingFrom ? 'From ' : ''}${formatPrice(data.price.amount)}` : 'Price on request';
+const availability = { 'made-to-order': 'Made to order', available: 'Ready to ship', 'sold-out': 'Sold out', archived: 'Archived design' }[data.availability];
+const gallerySizes = '(min-width: 64rem) 28vw, 100vw';
+---
+
+<BaseLayout
+  title={data.seo?.title ?? `${data.name} — ${collection.data.name}`}
+  description={description}
+  image={ogImage?.src}
+  imageAlt={data.images[0]?.alt}
+  type="product"
+  noindex={data.draft}
+  pageEvent={{ name: 'design_view', design: design.id, collection: collection.id }}
+  jsonLd={[
+    breadcrumbLd(crumbs, base),
+    designLd(
+      {
+        name: data.name,
+        description,
+        path,
+        images: ldImages.map((i) => absoluteUrl(i.src, base)),
+        category: collection.data.name,
+        price: site.showPrices ? data.price : undefined,
+        availability: data.availability,
+      },
+      base,
+    ),
+  ]}
+>
+  <div class="container-x hidden pt-8 lg:block"><Breadcrumbs items={crumbs} /></div>
+
+  <div class="grid gap-0 pb-16 lg:container-x lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:pt-6 lg:pb-24">
+    <!-- Gallery: swipe on mobile, editorial stack on desktop -->
+    <section aria-label={`${data.name} photos`} class="relative">
+      <ul class="snap-row auto-cols-[100%] lg:grid lg:grid-flow-row lg:grid-cols-2 lg:gap-3 lg:overflow-visible lg:[&>li:first-child]:col-span-2" data-gallery>
+        {data.images.map((img, i) => (
+          <li class:list={['aspect-[4/5] overflow-hidden bg-pink', i === 0 && 'lg:aspect-[4/5]']} style={i === 0 ? `view-transition-name: d-${design.id}` : undefined}>
+            <Photo src={img.src} alt={img.alt} priority={i === 0} sizes={i === 0 ? '(min-width: 64rem) 56vw, 100vw' : gallerySizes} />
+          </li>
+        ))}
+      </ul>
+      {data.images.length > 1 && (
+        <p class="label absolute left-4 bottom-20 bg-paper/85 px-2.5 py-1 text-ink backdrop-blur-sm lg:hidden" aria-live="polite"><span data-gallery-index>1</span> / {data.images.length}</p>
+      )}
+    </section>
+
+    <!-- Details -->
+    <section class="relative z-10 -mt-14 rounded-t-[2rem] bg-paper px-5 pt-7 lg:mt-0 lg:rounded-none lg:px-0 lg:pt-0">
+      <div class="flex flex-col gap-6 lg:sticky lg:top-28">
+        <div class="flex flex-col gap-3">
+          <div class="lg:hidden"><Breadcrumbs items={crumbs.slice(0, 3)} /></div>
+          <a href={`/collections/${collection.id}`} class="label hidden self-start transition-colors hover:text-ink lg:inline">Chapter {collection.data.numeral} · {collection.data.name}</a>
+          <h1 class="text-[2.6rem] leading-[1.05] tracking-[0.05em] md:text-6xl">{data.name}</h1>
+          <p class="text-ink/75">{data.summary}</p>
+        </div>
+
+        <div class="flex items-baseline justify-between border-y border-line-strong py-4">
+          <p class="font-display text-2xl tracking-[0.04em]">{priceText}</p>
+          <p class="label">{availability}</p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <a href={waLink} target="_blank" rel="noopener" class="btn btn-solid w-full" data-track="whatsapp_click" data-location="design" data-design={design.id}>
+            <WhatsAppIcon /> Enquire on WhatsApp
+          </a>
+          <a href={`/custom-made?design=${encodeURIComponent(data.name)}`} class="btn btn-line w-full">Request a custom version</a>
+          <p class="text-xs text-ink/60">Enquiring doesn't place an order — we'll confirm details, sizing and pricing with you first.</p>
+        </div>
+
+        <div class="divide-y divide-line-strong border-y border-line-strong">
+          <details open class="group py-4">
+            <summary class="label flex cursor-pointer list-none items-center justify-between text-ink [&::-webkit-details-marker]:hidden">
+              The design <span aria-hidden="true" class="text-base transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <div class="prose-satin mt-4"><Content /></div>
+          </details>
+          {data.materials.length > 0 && (
+            <details class="group py-4">
+              <summary class="label flex cursor-pointer list-none items-center justify-between text-ink [&::-webkit-details-marker]:hidden">
+                Fabric <span aria-hidden="true" class="text-base transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p class="mt-4 text-ink/80 capitalize">{data.materials.join(', ')}</p>
+            </details>
+          )}
+          <details class="group py-4">
+            <summary class="label flex cursor-pointer list-none items-center justify-between text-ink [&::-webkit-details-marker]:hidden">
+              Customisation <span aria-hidden="true" class="text-base transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <p class="mt-4 text-ink/80">{data.customisationNotes ?? site.defaultCustomisationNote}</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  {related.length > 0 && (
+    <section class="border-t border-line bg-white/50 py-16 md:py-24">
+      <div class="container-x">
+        <div class="mb-10 flex items-end justify-between gap-6">
+          <h2 class="text-2xl tracking-[0.06em] md:text-4xl">More from {collection.data.name}</h2>
+          <a href={`/collections/${collection.id}`} class="label link-line shrink-0 text-ink">View all</a>
+        </div>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-4">
+          {related.map((d) => <DesignCard design={d} sizes="(min-width: 64rem) 23vw, 48vw" />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Mobile sticky enquiry bar -->
+  <div class="sticky bottom-0 z-30 border-t border-line bg-paper/95 px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+    <a href={waLink} target="_blank" rel="noopener" class="btn btn-solid w-full" data-track="whatsapp_click" data-location="design_sticky" data-design={design.id}>
+      <WhatsAppIcon /> Enquire on WhatsApp
+    </a>
+  </div>
+</BaseLayout>
+
+<script>
+  // Live "2 / 6" counter for the mobile swipe gallery.
+  const gallery = document.querySelector<HTMLElement>('[data-gallery]');
+  const out = document.querySelector('[data-gallery-index]');
+  if (gallery && out) {
+    const [a, b] = gallery.children as unknown as HTMLElement[];
+    gallery.addEventListener(
+      'scroll',
+      () => (out.textContent = String(Math.min(gallery.children.length, Math.round(gallery.scrollLeft / (b.offsetLeft - a.offsetLeft)) + 1))),
+      { passive: true },
+    );
+  }
+</script>

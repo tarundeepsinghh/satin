@@ -1,0 +1,43 @@
+---
+import '@/styles/global.css';
+import { Font } from 'astro:assets';
+import SEO, { type Props as SEOProps } from '@/components/seo/SEO.astro';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+import { site } from '@/config/site';
+
+export type Props = SEOProps & {
+  /** Analytics page event, e.g. { name: 'design_view', design: 'gulnoor' } — no personal data. */
+  pageEvent?: Record<string, string>;
+};
+const { pageEvent, ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <Font cssVariable="--font-marcellus" preload />
+    <Font cssVariable="--font-jost" preload />
+    <SEO {...seo} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <meta name="theme-color" content="#fbf4f6" />
+    <slot name="head" />
+  </head>
+  <body data-page-event={pageEvent ? JSON.stringify(pageEvent) : undefined}>
+    <a href="#main" class="label sr-only z-50 bg-plum px-4 py-3 text-on-plum focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '@/scripts/analytics';
+    </script>
+  </body>
+</html>

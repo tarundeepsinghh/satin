@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+/* ── Brand tokens (from "Satin Logo v2" handoff) ───────────────────────── */
+@theme {
+  --color-ink: #4a2a33;        /* plum ink — wordmark, headings, body */
+  --color-rose: #9c5e6d;       /* "by Sukhmani" rose */
+  --color-label: #8a5465;      /* small caps labels (AA on paper) */
+  --color-mauve: #b08793;      /* decorative only (lines, large text) */
+  --color-pink: #f7dae2;       /* baby pink surface */
+  --color-pink-deep: #f2c8d3;  /* app-icon pink */
+  --color-paper: #fbf4f6;      /* blush paper — page background */
+  --color-line: #f0e4e7;
+  --color-line-strong: #e2d0d5;
+  --color-frame: #d8a9b6;
+  --color-plum: #271820;       /* deep plum surface */
+  --color-on-plum: #f4d2db;
+  --color-on-plum-mark: #f2cfd9;
+  --color-on-plum-muted: #c98e9c;
+
+  --font-display: var(--font-marcellus), Georgia, serif;
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  html:has(dialog[open]) { overflow: hidden; }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    @media (width >= 48rem) { font-size: 1.125rem; }
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.15; text-wrap: balance; }
+  p { text-wrap: pretty; }
+  strong, b { font-weight: 500; }
+
+  :focus-visible { outline: 2px solid var(--color-rose); outline-offset: 3px; }
+  ::selection { background: var(--color-pink-deep); color: var(--color-ink); }
+}
+
+/* Cross-document page transitions (no JS). Design cards morph into the design page hero. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.35s; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ── Brand utilities ──────────────────────────────────────────────────── */
+@utility label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  color: var(--color-label);
+}
+
+@utility wordmark {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.36em;
+  margin-right: -0.36em; /* optical centring of tracked caps */
+  line-height: 1;
+}
+
+/* Jharokha-style arch frame */
+@utility arch {
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+  overflow: hidden;
+}
+
+@utility container-x {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  max-width: 80rem;
+  @media (width >= 48rem) { padding-inline: 2.5rem; }
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3.25rem;
+  padding: 0.95rem 1.75rem;
+  border-radius: 2px;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1;
+  transition: background-color 0.3s var(--ease-silk), color 0.3s var(--ease-silk), border-color 0.3s var(--ease-silk);
+  cursor: pointer;
+}
+
+@utility btn-solid {
+  background: var(--color-plum);
+  color: var(--color-on-plum);
+  &:hover { background: var(--color-ink); }
+}
+
+@utility btn-pink {
+  background: var(--color-pink);
+  color: var(--color-ink);
+  &:hover { background: var(--color-white, #fff); }
+}
+
+@utility btn-ghost-light {
+  border: 1px solid color-mix(in srgb, var(--color-on-plum) 70%, transparent);
+  color: var(--color-on-plum);
+  &:hover { background: var(--color-on-plum); color: var(--color-plum); }
+}
+
+/* Legibility scrim for text over photos */
+@utility scrim {
+  background: linear-gradient(to top, rgb(39 24 32 / 0.82) 0%, rgb(39 24 32 / 0.35) 38%, transparent 65%);
+}
+
+@utility btn-line {
+  border: 1px solid var(--color-ink);
+  color: var(--color-ink);
+  &:hover { background: var(--color-ink); color: var(--color-paper); }
+}
+
+@utility link-line {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.4s var(--ease-silk);
+  &:hover { background-size: 0% 1px; background-position: 100% 100%; }
+}
+
+/* Long-form copy from the catalogue */
+@utility prose-satin {
+  color: color-mix(in srgb, var(--color-ink) 88%, transparent);
+  & > * + * { margin-top: 1em; }
+  & ul { list-style: none; padding: 0; }
+  & li { padding-left: 1.1em; position: relative; }
+  & li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 0.4em; height: 1px; background: var(--color-rose); }
+  & a { text-decoration: underline; text-underline-offset: 3px; }
+}
+
+/* Horizontal swipe rows (mobile) — native scroll-snap, no JS */
+@utility snap-row {
+  display: grid;
+  grid-auto-flow: column;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  & > * { scroll-snap-align: start; }
+}
+
+/* ── Motion ───────────────────────────────────────────────────────────── */
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes bloom-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.animate-rise { animation: rise 1s var(--ease-silk) both; }
+.bloom-draw path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: bloom-draw 1.6s var(--ease-silk) forwards; }
+.bloom-draw path:nth-child(2) { animation-delay: 0.12s; }
+.bloom-draw path:nth-child(3) { animation-delay: 0.24s; }
+.bloom-draw path:nth-child(4) { animation-delay: 0.36s; }
+.bloom-draw path:nth-child(5) { animation-delay: 0.48s; }
+
+/* ── Editorial blend utilities ────────────────────────────────────────── */
+/* Outline numerals (chapter I, II…) that sit over photos */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-rose);
+}
+@utility text-outline-light {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-on-plum-mark);
+}
+/* Tiny photos set inline inside a headline */
+@utility inline-pic {
+  display: inline-block;
+  position: relative;
+  height: 0.8em;
+  width: 1.5em;
+  margin-inline: 0.12em;
+  vertical-align: -0.06em;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: var(--color-pink-deep);
+}
+/* Offset outline frame behind an arch photo (echoes the framed mark) */
+@utility arch-frame {
+  position: absolute;
+  inset: -0.75rem -0.75rem 2rem -0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 30%, transparent);
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+  pointer-events: none;
+}

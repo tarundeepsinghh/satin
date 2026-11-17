@@ -1,0 +1,45 @@
+---
+// Logo lockups from the handoff: primary (stacked), horizontal, wordmark.
+// Text is live HTML in Marcellus (crisp, accessible); the mark is inline SVG.
+import Blossom from './Blossom.astro';
+
+interface Props {
+  variant?: 'primary' | 'horizontal' | 'wordmark';
+  tone?: 'light' | 'dark';
+  /** Base size of "SATIN" in rem — everything else scales from it. */
+  scale?: number;
+  /** Size of "BY SUKHMANI" relative to "SATIN" (handoff ratio ≈ 0.28–0.32; larger reads better small). */
+  sub?: number;
+  class?: string;
+}
+const { variant = 'primary', tone = 'light', scale = 2.875, sub: subRatio, class: className } = Astro.props;
+const ink = tone === 'dark' ? 'text-on-plum' : 'text-ink';
+const sub = tone === 'dark' ? 'text-on-plum-muted' : 'text-rose';
+const mark = tone === 'dark' ? 'text-on-plum-mark' : 'text-ink';
+---
+
+{variant === 'primary' && (
+  <div class:list={['flex flex-col items-center', className]} style={`gap:${scale * 0.52}rem`}>
+    <Blossom size={`${scale * 1.7}rem`} veins class={mark} />
+    <span class:list={['wordmark', ink]} style={`font-size:${scale}rem`}>Satin</span>
+    <span class:list={['font-display uppercase', sub]} style={`font-size:${scale * (subRatio ?? 0.283)}rem;letter-spacing:.5em;margin-right:-.5em`}>by Sukhmani</span>
+  </div>
+)}
+
+{variant === 'horizontal' && (
+  <div class:list={['flex items-center', className]} style={`gap:${scale * 0.68}rem`}>
+    <Blossom size={`${scale * 1.63}rem`} stroke={2.4} class={mark} />
+    <span class="w-px self-stretch bg-line-strong" style={`min-height:${scale * 1.7}rem`}></span>
+    <span class="flex flex-col" style={`gap:${scale * 0.26}rem`}>
+      <span class:list={['font-display uppercase leading-none', ink]} style={`font-size:${scale}rem;letter-spacing:.3em`}>Satin</span>
+      <span class:list={['font-display uppercase', sub]} style={`font-size:${scale * (subRatio ?? 0.316)}rem;letter-spacing:.42em`}>by Sukhmani</span>
+    </span>
+  </div>
+)}
+
+{variant === 'wordmark' && (
+  <div class:list={['flex flex-col items-center', className]} style={`gap:${scale * 0.35}rem`}>
+    <span class:list={['wordmark', ink]} style={`font-size:${scale}rem`}>Satin</span>
+    <span class:list={['font-display uppercase', sub]} style={`font-size:${scale * (subRatio ?? 0.3)}rem;letter-spacing:.5em;margin-right:-.5em`}>by Sukhmani</span>
+  </div>
+)}

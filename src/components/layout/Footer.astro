@@ -1,0 +1,49 @@
+---
+import Logo from '@/components/brand/Logo.astro';
+import { site } from '@/config/site';
+import { whatsappUrl } from '@/lib/whatsapp';
+import { getCollections } from '@/lib/content';
+
+const collections = await getCollections();
+const linkCls = 'transition-colors hover:text-white';
+---
+
+<footer class="bg-plum text-on-plum">
+  <div class="container-x grid gap-12 py-16 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:py-24">
+    <div class="flex flex-col items-center gap-6 text-center md:items-start md:text-left">
+      <Logo tone="dark" scale={2} />
+      <p class="max-w-xs text-sm text-on-plum/70">{site.tagline}</p>
+    </div>
+
+    <nav aria-label="Collections" class="grid grid-cols-2 gap-10 md:contents">
+      <div>
+        <p class="label mb-4 text-on-plum-muted">Collections</p>
+        <ul class="flex flex-col gap-2.5 text-sm">
+          {collections.map((c) => <li><a href={`/collections/${c.id}`} class={linkCls}>{c.data.name}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <p class="label mb-4 text-on-plum-muted">Atelier</p>
+        <ul class="flex flex-col gap-2.5 text-sm">
+          {site.nav.map((item) => <li><a href={item.href} class={linkCls}>{item.label}</a></li>)}
+          <li><a href="/privacy-policy" class={linkCls}>Privacy Policy</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div>
+      <p class="label mb-4 text-on-plum-muted">Get in touch</p>
+      <ul class="flex flex-col gap-2.5 text-sm">
+        <li><a href={whatsappUrl('Hi, I found you through your website.')} target="_blank" rel="noopener" class={linkCls} data-track="whatsapp_click" data-location="footer">WhatsApp</a></li>
+        <li><a href={site.instagramUrl} target="_blank" rel="noopener" class={linkCls} data-track="instagram_click" data-location="footer">Instagram</a></li>
+        <li><a href={`mailto:${site.email}`} class:list={[linkCls, 'break-all']}>{site.email}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-on-plum/10">
+    <div class="container-x flex flex-col gap-1 py-6 text-xs text-on-plum/60 md:flex-row md:justify-between">
+      <p>© {new Date().getFullYear()} {site.name}</p>
+      <p>Every piece made to order.</p>
+    </div>
+  </div>
+</footer>

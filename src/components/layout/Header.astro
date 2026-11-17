@@ -1,0 +1,86 @@
+---
+import Blossom from '@/components/brand/Blossom.astro';
+import Logo from '@/components/brand/Logo.astro';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon.astro';
+import { site } from '@/config/site';
+import { whatsappUrl } from '@/lib/whatsapp';
+
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => current === href || current.startsWith(`${href}/`);
+const waHello = whatsappUrl('Hi, I found you through your website and would like to know more.');
+const navLink = 'label text-ink transition-colors hover:text-rose aria-[current=page]:text-rose';
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-md">
+  <div class="container-x grid h-16 grid-cols-[1fr_auto_1fr] items-center lg:h-20">
+    <!-- Mobile: menu trigger -->
+    <button type="button" class="label -ml-2 flex items-center gap-2.5 justify-self-start p-2 text-ink lg:hidden" aria-haspopup="dialog" aria-controls="site-menu" data-menu-open>
+      <span class="flex w-5 flex-col gap-[5px]" aria-hidden="true"><span class="h-px bg-current"></span><span class="h-px w-3 bg-current"></span></span>
+      Menu
+    </button>
+
+    <!-- Desktop: nav left -->
+    <nav aria-label="Main" class="hidden lg:block">
+      <ul class="flex gap-8">
+        {site.nav.slice(0, 2).map((item) => (
+          <li><a href={item.href} class={navLink} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <a href="/" aria-label={`${site.name} — home`} class="justify-self-center">
+      <Logo variant="wordmark" scale={1.35} sub={0.46} class="lg:hidden" />
+      <Logo variant="horizontal" scale={1.5} sub={0.42} class="hidden lg:flex" />
+    </a>
+
+    <!-- Desktop: nav right · Both: WhatsApp -->
+    <div class="flex items-center justify-end gap-8">
+      <ul class="hidden gap-8 lg:flex">
+        {site.nav.slice(2).map((item) => (
+          <li><a href={item.href} class={navLink} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
+      <a href={waHello} target="_blank" rel="noopener" class="-mr-2 flex items-center gap-2 p-2 text-ink transition-colors hover:text-rose lg:mr-0" data-track="whatsapp_click" data-location="header">
+        <WhatsAppIcon class="size-[1.15rem]" />
+        <span class="sr-only">Chat on WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile menu: native <dialog> gives focus trap, Esc to close and an inert background -->
+<dialog id="site-menu" aria-label="Menu" class="m-0 h-dvh max-h-none w-full max-w-none bg-pink p-0 text-ink backdrop:bg-plum/30 open:flex open:flex-col">
+  <div class="container-x flex h-16 shrink-0 items-center justify-between">
+    <button type="button" class="label -ml-2 flex items-center gap-2.5 p-2 text-ink" data-menu-close>
+      <span class="relative block size-4" aria-hidden="true"><span class="absolute top-1/2 h-px w-4 rotate-45 bg-current"></span><span class="absolute top-1/2 h-px w-4 -rotate-45 bg-current"></span></span>
+      Close
+    </button>
+    <Blossom size={22} stroke={4} />
+  </div>
+
+  <nav aria-label="Mobile" class="container-x flex flex-1 flex-col justify-center">
+    <ol class="flex flex-col">
+      {[{ href: '/', label: 'Home' }, ...site.nav].map((item, i) => (
+        <li class="animate-rise" style={`animation-delay:${0.05 + i * 0.06}s`}>
+          <a href={item.href} class="flex items-baseline gap-4 border-b border-ink/10 py-4" aria-current={isActive(item.href) && item.href !== '/' ? 'page' : undefined}>
+            <span class="label w-6">{String(i + 1).padStart(2, '0')}</span>
+            <span class="font-display text-[1.85rem] leading-none tracking-[0.08em] uppercase">{item.label}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  <div class="container-x flex flex-wrap gap-x-6 gap-y-2 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+    <a href={waHello} target="_blank" rel="noopener" class="label link-line text-ink" data-track="whatsapp_click" data-location="menu">WhatsApp</a>
+    <a href={site.instagramUrl} target="_blank" rel="noopener" class="label link-line text-ink" data-track="instagram_click" data-location="menu">Instagram</a>
+    <a href={`mailto:${site.email}`} class="label link-line text-ink">Email</a>
+  </div>
+</dialog>
+
+<script>
+  const menu = document.getElementById('site-menu') as HTMLDialogElement;
+  document.querySelector('[data-menu-open]')?.addEventListener('click', () => menu.showModal());
+  menu.querySelector('[data-menu-close]')?.addEventListener('click', () => menu.close());
+  matchMedia('(min-width: 64rem)').addEventListener('change', (e) => e.matches && menu.open && menu.close());
+</script>
